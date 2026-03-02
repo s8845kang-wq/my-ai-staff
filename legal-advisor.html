@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>최법무 · 법무 자문역</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Fraunces:wght@700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#fff8f5; --white:#fff; --s1:#fff5f0; --border:#ffe0d0; --border2:#ffc8a8;
+  --text:#1f1510; --muted:#a07060; --muted2:#7a5040;
+  --orange:#f97316; --orange-d:#ea580c; --orange-l:#fff7ed; --orange-ll:#fff8f5;
+  --red:#ef4444; --red-l:#fef2f2; --amber:#f59e0b; --amber-l:#fffbeb;
+  --green:#10b981; --green-l:#ecfdf5;
+  --mono:'IBM Plex Mono',monospace; --serif:'Fraunces',serif; --sans:'Noto Sans KR',sans-serif;
+  --r:16px; --r-sm:10px; --shadow:0 2px 16px rgba(249,115,22,0.08); --shadow-lg:0 8px 40px rgba(249,115,22,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.staff-badge{display:flex;align-items:center;gap:12px}
+.badge-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#431407,#9a3412);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative}
+.badge-online{position:absolute;bottom:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid var(--white);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.badge-name{font-size:15px;font-weight:700}.badge-role{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.badge-dept{background:var(--orange-l);color:var(--orange-d);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:99px;font-family:var(--mono)}
+.back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted2);text-decoration:none}
+.back-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-l)}
+.api-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted2)}
+.api-btn:hover{border-color:var(--orange);color:var(--orange)}.api-btn.active{border-color:var(--orange);color:var(--orange-d);background:var(--orange-l)}
+.layout{display:grid;grid-template-columns:1fr 400px;height:calc(100vh - 60px);overflow:hidden}
+.left-col{overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.left-col::-webkit-scrollbar{width:4px}.left-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.disclaimer{background:var(--amber-l);border:1.5px solid var(--amber);border-radius:var(--r-sm);padding:12px 14px;font-size:12px;color:#92400e;line-height:1.7}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+.card-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.add-btn{font-size:11px;padding:4px 12px;border-radius:99px;border:1.5px solid var(--border2);background:var(--s1);color:var(--muted2);cursor:pointer;transition:all .15s;font-family:inherit}
+.add-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-l)}
+.form-wrap{background:var(--orange-ll);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:12px;display:none;flex-direction:column;gap:8px}
+.form-wrap.open{display:flex}
+.f-input,.f-select,.f-ta{width:100%;padding:9px 12px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s}
+.f-input:focus,.f-select:focus,.f-ta:focus{border-color:var(--orange)}
+.f-ta{resize:vertical;min-height:64px;line-height:1.6}
+.f-row{display:flex;gap:8px}
+.f-save{padding:8px 18px;background:var(--orange);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+.f-save:hover{background:var(--orange-d)}
+.items{display:flex;flex-direction:column;gap:7px}
+.item{background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;display:flex;align-items:flex-start;gap:10px;transition:all .15s}
+.item:hover{border-color:var(--border2);background:var(--white);box-shadow:var(--shadow)}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.item-sub{font-size:11px;color:var(--muted2);line-height:1.5}
+.item-meta{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px}
+.item-del{color:var(--muted);font-size:13px;cursor:pointer;padding:2px;border:none;background:none;border-radius:4px;transition:color .15s;flex-shrink:0}
+.item-del:hover{color:#ef4444}
+.empty-state{text-align:center;padding:24px 0;color:var(--muted);font-size:13px}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;font-family:var(--mono)}
+.chip-red{background:var(--red-l);color:var(--red)}.chip-amber{background:var(--amber-l);color:#d97706}
+.chip-green{background:var(--green-l);color:#059669}.chip-orange{background:var(--orange-l);color:var(--orange-d)}
+.status-bar{display:flex;align-items:center;gap:6px;margin-top:6px}
+.status-dot-item{width:8px;height:8px;border-radius:50%}
+.dot-active{background:#22c55e}.dot-pending{background:var(--amber)}.dot-closed{background:var(--muted)}
+/* 채팅 */
+.chat-col{border-left:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;height:100%}
+.chat-header{padding:16px 18px;border-bottom:1px solid var(--border);background:var(--orange-ll);flex-shrink:0}
+.chat-header-title{font-size:13px;font-weight:700;color:var(--orange-d);margin-bottom:2px}
+.chat-header-sub{font-size:11px;color:var(--muted)}
+.ctx-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.ctx-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--white);border:1px solid var(--orange);color:var(--orange-d);font-family:var(--mono)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msgs::-webkit-scrollbar{width:3px}.chat-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.msg{display:flex;flex-direction:column;gap:4px;animation:msgIn .25s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{align-items:flex-end}.msg.ai{align-items:flex-start}
+.msg-bubble{max-width:86%;padding:10px 14px;font-size:13px;line-height:1.75;border-radius:14px}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--orange),#fb923c);color:#fff;border-bottom-right-radius:3px}
+.msg.ai .msg-bubble{background:var(--s1);border:1.5px solid var(--border);color:var(--text);border-bottom-left-radius:3px}
+.msg-time{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;border-bottom-left-radius:3px;width:fit-content}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:td 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.quick-qs{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.qq{font-size:11px;padding:5px 11px;border-radius:99px;border:1.5px solid var(--border);background:var(--s1);color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.qq:hover{border-color:var(--orange);color:var(--orange-d);background:var(--orange-l)}
+.chat-input-wrap{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.chat-ta{flex:1;padding:10px 13px;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;resize:none;outline:none;max-height:100px;min-height:42px;transition:border-color .2s;line-height:1.5}
+.chat-ta:focus{border-color:var(--orange);background:var(--white)}
+.send-btn{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--orange),#fb923c);color:#fff;border:none;cursor:pointer;font-size:16px;flex-shrink:0;transition:all .2s}
+.send-btn:hover{opacity:.85;transform:scale(1.05)}.send-btn:disabled{opacity:.35;cursor:default;transform:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--white);border-radius:var(--r);padding:28px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);transform:scale(.95);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-title{font-family:var(--serif);font-size:20px;margin-bottom:6px}
+.modal-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.m-input{width:100%;padding:10px 13px;background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:var(--mono);color:var(--text);outline:none;margin-bottom:12px;transition:border-color .2s}
+.m-input:focus{border-color:var(--orange)}
+.m-btns{display:flex;gap:8px}
+.m-ok{flex:1;padding:11px;background:var(--orange);color:#fff;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.m-ok:hover{background:var(--orange-d)}
+.m-cancel{padding:11px 16px;background:var(--s1);color:var(--muted2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:var(--shadow-lg);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.msg-bubble p{margin-bottom:6px}.msg-bubble p:last-child{margin-bottom:0}
+.msg-bubble ul,.msg-bubble ol{padding-left:16px;margin:5px 0}.msg-bubble li{margin-bottom:3px}
+.msg-bubble strong{font-weight:700}.msg-bubble code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="staff-badge">
+    <div class="badge-avatar">⚖️<div class="badge-online"></div></div>
+    <div>
+      <div class="badge-name">최법무</div>
+      <div class="badge-role">LEGAL ADVISOR · <span id="yearsLabel"></span></div>
+    </div>
+    <div class="badge-dept">법무팀</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a class="back-btn" href="my-ai-staff-v2.html">← 허브로</a>
+    <button class="api-btn" id="apiBtn" onclick="openApiModal()">🔑 <span id="apiLabel">API 키</span></button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="left-col">
+    <div class="disclaimer">⚠️ <strong>법적 면책고지:</strong> 최법무는 AI 보조 도구로, 실제 변호사가 아닙니다. 중요한 법률 사안은 반드시 전문 법무사·변호사와 상담하세요. 여기서 제공되는 정보는 참고용입니다.</div>
+
+    <!-- 진행 중인 사안 -->
+    <div class="card">
+      <div class="card-title">⚖️ 진행 중인 사안 <button class="add-btn" onclick="toggleForm('caseForm')">+ 추가</button></div>
+      <div class="form-wrap" id="caseForm">
+        <input class="f-input" id="c-title" placeholder="사안명 (예: 임대차 계약 분쟁)">
+        <div class="f-row">
+          <select class="f-select" id="c-type">
+            <option>계약</option><option>노동·고용</option><option>임대차</option>
+            <option>소비자분쟁</option><option>형사</option><option>기타</option>
+          </select>
+          <select class="f-select" id="c-status">
+            <option value="진행중">진행중</option><option value="대기중">대기중</option><option value="완료">완료</option>
+          </select>
+        </div>
+        <textarea class="f-ta" id="c-desc" placeholder="사안 내용 및 현황"></textarea>
+        <button class="f-save" onclick="addCase()">저장</button>
+      </div>
+      <div class="items" id="caseItems"></div>
+    </div>
+
+    <!-- 계약/문서 -->
+    <div class="card">
+      <div class="card-title">📄 계약 & 문서 <button class="add-btn" onclick="toggleForm('contractForm')">+ 추가</button></div>
+      <div class="form-wrap" id="contractForm">
+        <input class="f-input" id="ct-name" placeholder="문서명 (예: 사무실 임대차 계약서)">
+        <div class="f-row">
+          <input class="f-input" id="ct-party" placeholder="상대방">
+          <input class="f-input" id="ct-expire" type="date" placeholder="만료일">
+        </div>
+        <textarea class="f-ta" id="ct-memo" placeholder="주요 내용 / 특이사항"></textarea>
+        <button class="f-save" onclick="addContract()">저장</button>
+      </div>
+      <div class="items" id="contractItems"></div>
+    </div>
+
+    <!-- 법률 메모 -->
+    <div class="card">
+      <div class="card-title">📝 법률 메모 <button class="add-btn" onclick="toggleForm('memoForm')">+ 추가</button></div>
+      <div class="form-wrap" id="memoForm">
+        <input class="f-input" id="m-title" placeholder="메모 제목">
+        <textarea class="f-ta" id="m-content" placeholder="내용 (관련 법조항, 판례, 주의사항 등)"></textarea>
+        <button class="f-save" onclick="addMemo()">저장</button>
+      </div>
+      <div class="items" id="memoItems"></div>
+    </div>
+  </div>
+
+  <!-- 채팅 -->
+  <div class="chat-col">
+    <div class="chat-header">
+      <div class="chat-header-title">⚖️ 최법무와 상담</div>
+      <div class="chat-header-sub">계약, 노동법, 분쟁 등 법률 관련 질문을 해보세요.</div>
+      <div class="ctx-pills" id="ctxPills"></div>
+    </div>
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <div class="quick-qs">
+      <div class="qq" onclick="ask('진행 중인 사안 요약해줘')">사안 요약</div>
+      <div class="qq" onclick="ask('만료 임박한 계약 있어?')">만료 계약</div>
+      <div class="qq" onclick="ask('부당해고 대응 방법 알려줘')">부당해고</div>
+      <div class="qq" onclick="ask('내용증명 작성 방법 알려줘')">내용증명</div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-ta" id="chatInput" placeholder="법률 관련 질문을 해보세요..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <div class="modal-title">🔑 API 키 설정</div>
+    <div class="modal-desc"><a href="https://console.anthropic.com" target="_blank" style="color:var(--orange)">console.anthropic.com</a>에서 발급한 키를 입력하세요.</div>
+    <input class="m-input" id="apiInput" type="password" placeholder="sk-ant-...">
+    <div class="m-btns">
+      <button class="m-cancel" onclick="closeApiModal()">취소</button>
+      <button class="m-ok" onclick="saveKey()">저장</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let db=JSON.parse(localStorage.getItem('legal_v1')||'{}');
+if(!db.cases)db.cases=[];if(!db.contracts)db.contracts=[];if(!db.memos)db.memos=[];
+if(!db.history)db.history=[];if(!db.settings)db.settings={name:'최법무',hireDate:'2023-07-01',tone:'formal'};
+let apiKey=localStorage.getItem('apiKey')||'';let isLoading=false;
+function save(){localStorage.setItem('legal_v1',JSON.stringify(db))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}
+function getYears(d){const m=Math.floor((new Date()-new Date(d))/(1000*60*60*24*30.5));return m<12?`${m}개월차`:`${Math.floor(m/12)}년 ${m%12}개월차`}
+function toggleForm(id){const el=document.getElementById(id);el.classList.toggle('open');if(el.classList.contains('open'))el.querySelector('.f-input,.f-ta')?.focus()}
+const statusColor={진행중:'chip-red',대기중:'chip-amber',완료:'chip-green'};
+
+function addCase(){
+  const title=document.getElementById('c-title').value.trim();
+  if(!title){toast('사안명을 입력해주세요!');return}
+  db.cases.push({id:Date.now().toString(),title,type:document.getElementById('c-type').value,status:document.getElementById('c-status').value,desc:document.getElementById('c-desc').value.trim(),createdAt:new Date().toISOString()});
+  save();renderCases();updateCtx();toggleForm('caseForm');
+  ['c-title','c-desc'].forEach(id=>document.getElementById(id).value='');toast('✅ 사안 추가됐어요!')
+}
+function renderCases(){
+  const el=document.getElementById('caseItems');
+  if(!db.cases.length){el.innerHTML='<div class="empty-state">진행 중인 사안을 추가해보세요!</div>';return}
+  el.innerHTML=db.cases.map(c=>`
+    <div class="item">
+      <div class="item-body">
+        <div class="item-title" style="display:flex;align-items:center;gap:8px">${c.title}<span class="chip ${statusColor[c.status]||'chip-amber'}">${c.status}</span><span class="chip chip-orange">${c.type}</span></div>
+        ${c.desc?`<div class="item-sub">${c.desc}</div>`:''}
+        <div class="item-meta">${new Date(c.createdAt).toLocaleDateString('ko-KR')}</div>
+      </div>
+      <button class="item-del" onclick="del('cases','${c.id}')">✕</button>
+    </div>`).join('')
+}
+
+function addContract(){
+  const name=document.getElementById('ct-name').value.trim();
+  if(!name){toast('문서명을 입력해주세요!');return}
+  db.contracts.push({id:Date.now().toString(),name,party:document.getElementById('ct-party').value.trim(),expire:document.getElementById('ct-expire').value,memo:document.getElementById('ct-memo').value.trim(),createdAt:new Date().toISOString()});
+  save();renderContracts();updateCtx();toggleForm('contractForm');
+  ['ct-name','ct-party','ct-expire','ct-memo'].forEach(id=>document.getElementById(id).value='');toast('✅ 계약 추가됐어요!')
+}
+function renderContracts(){
+  const el=document.getElementById('contractItems');
+  if(!db.contracts.length){el.innerHTML='<div class="empty-state">계약 및 문서를 추가해보세요!</div>';return}
+  const today=new Date();
+  el.innerHTML=db.contracts.map(c=>{
+    const exp=c.expire?new Date(c.expire):null;
+    const daysLeft=exp?Math.ceil((exp-today)/(1000*60*60*24)):null;
+    const expChip=daysLeft!==null?(daysLeft<0?`<span class="chip chip-red">만료됨</span>`:daysLeft<30?`<span class="chip chip-amber">D-${daysLeft}</span>`:`<span class="chip chip-green">D-${daysLeft}</span>`):'';
+    return`<div class="item">
+      <div class="item-body">
+        <div class="item-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${c.name}${expChip}</div>
+        ${c.party?`<div class="item-sub">👤 상대방: ${c.party}</div>`:''}
+        ${c.expire?`<div class="item-sub">📅 만료: ${c.expire}</div>`:''}
+        ${c.memo?`<div class="item-sub">${c.memo}</div>`:''}
+      </div>
+      <button class="item-del" onclick="del('contracts','${c.id}')">✕</button>
+    </div>`}).join('')
+}
+
+function addMemo(){
+  const title=document.getElementById('m-title').value.trim();
+  const content=document.getElementById('m-content').value.trim();
+  if(!title){toast('제목을 입력해주세요!');return}
+  db.memos.unshift({id:Date.now().toString(),title,content,createdAt:new Date().toISOString()});
+  save();renderMemos();updateCtx();toggleForm('memoForm');
+  ['m-title','m-content'].forEach(id=>document.getElementById(id).value='');toast('✅ 메모 저장됐어요!')
+}
+function renderMemos(){
+  const el=document.getElementById('memoItems');
+  if(!db.memos.length){el.innerHTML='<div class="empty-state">법률 메모를 남겨보세요!</div>';return}
+  el.innerHTML=db.memos.slice(0,8).map(m=>`
+    <div class="item">
+      <div class="item-body">
+        <div class="item-title">${m.title}</div>
+        ${m.content?`<div class="item-sub">${m.content.slice(0,80)}${m.content.length>80?'…':''}</div>`:''}
+        <div class="item-meta">${new Date(m.createdAt).toLocaleDateString('ko-KR')}</div>
+      </div>
+      <button class="item-del" onclick="del('memos','${m.id}')">✕</button>
+    </div>`).join('')
+}
+
+function del(key,id){db[key]=db[key].filter(x=>x.id!==id);save();if(key==='cases')renderCases();else if(key==='contracts')renderContracts();else renderMemos();updateCtx();toast('삭제됐어요.')}
+
+function updateCtx(){
+  const pills=[];
+  if(db.cases.length)pills.push(`⚖️ 사안 ${db.cases.length}건`);
+  if(db.contracts.length)pills.push(`📄 계약 ${db.contracts.length}건`);
+  if(db.memos.length)pills.push(`📝 메모 ${db.memos.length}건`);
+  document.getElementById('ctxPills').innerHTML=pills.map(p=>`<span class="ctx-pill">${p}</span>`).join('')
+}
+
+function buildCtx(){
+  const today=new Date().toISOString().slice(0,10);const parts=[`[오늘: ${today}]`];
+  if(db.cases.length){parts.push('[진행 중인 법률 사안]');db.cases.forEach(c=>parts.push(`• [${c.status}] ${c.title} (${c.type})${c.desc?' — '+c.desc:''}`))}
+  if(db.contracts.length){parts.push('[계약/문서]');db.contracts.forEach(c=>{const exp=c.expire?new Date(c.expire):null;const days=exp?Math.ceil((exp-new Date())/(1000*60*60*24)):null;parts.push(`• ${c.name}${c.party?' 상대방:'+c.party:''}${c.expire?' 만료:'+c.expire+(days!==null?'(D-'+days+')':''):''}${c.memo?' — '+c.memo:''}`)})}
+  if(db.memos.length){parts.push('[법률 메모]');db.memos.slice(0,5).forEach(m=>parts.push(`• ${m.title}${m.content?' — '+m.content.slice(0,60):''}`))}
+  return parts.join('\n')
+}
+
+function buildSystem(){
+  const ctx=buildCtx();
+  return `당신은 "${db.settings.name}"이라는 법무 자문역 AI 직원입니다.
+경력: ${getYears(db.settings.hireDate)} | 말투: 격식체(존댓말), 전문적이고 신중하게 | 사용자를 "사장님"이라 부름
+전문분야: 계약법, 노동법, 임대차, 소비자보호, 분쟁 대응
+
+중요: 답변 말미에 항상 "※ 이는 참고 정보이며, 중요한 사안은 전문 변호사와 상담을 권장드립니다."를 포함하세요.
+
+${ctx?`=== 사용자 법무 데이터 (필수 참고) ===\n${ctx}\n===\n위 데이터를 바탕으로 개인화된 법률 자문을 제공하세요.`:''}`
+}
+
+function renderMsgs(){
+  const el=document.getElementById('chatMsgs');
+  if(!db.history.length){el.innerHTML=`<div class="msg ai"><div class="msg-bubble"><p>안녕하십니까. 법무 자문역 ${db.settings.name}입니다.</p><p>법률 관련 사안이 있으시면 편하게 말씀해 주십시오. 왼쪽에 사안, 계약, 메모를 저장하면 더 정확한 자문을 드릴 수 있습니다.</p></div><div class="msg-time">지금</div></div>`}
+  else{el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('')}
+  el.scrollTop=el.scrollHeight
+}
+
+function ask(q){document.getElementById('chatInput').value=q;send()}
+
+async function send(){
+  if(isLoading)return;if(!apiKey){openApiModal();toast('API 키를 먼저 설정해주세요!');return}
+  const input=document.getElementById('chatInput');const text=input.value.trim();if(!text)return;
+  const t=now();const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  db.history.push({role:'user',content:`<p>${esc}</p>`,time:t});input.value='';input.style.height='auto';
+  const el=document.getElementById('chatMsgs');
+  el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('');
+  const tyEl=document.createElement('div');tyEl.className='msg ai';tyEl.innerHTML=`<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  el.appendChild(tyEl);el.scrollTop=el.scrollHeight;isLoading=true;document.getElementById('sendBtn').disabled=true;
+  try{
+    const msgs=db.history.slice(-14).map(m=>({role:m.role,content:m.content.replace(/<[^>]+>/g,'')}));
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:buildSystem(),messages:msgs})});
+    const data=await res.json();tyEl.remove();if(data.error)throw new Error(data.error.message);
+    const reply=fmtMd(data.content[0].text);db.history.push({role:'assistant',content:reply,time:now()});save();
+    el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('');el.scrollTop=el.scrollHeight;
+  }catch(err){tyEl.remove();el.innerHTML+=`<div class="msg ai"><div class="msg-bubble" style="border-color:#fca5a5;color:#ef4444">❌ ${err.message}</div></div>`;el.scrollTop=el.scrollHeight}
+  finally{isLoading=false;document.getElementById('sendBtn').disabled=false}
+}
+
+function fmtMd(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/### (.+)/gm,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^\d+\. (.+)$/gm,'<li>$1</li>').replace(/^[-•] (.+)$/gm,'<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>').split('\n\n').map(p=>p.startsWith('<')?p:`<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}
+function openApiModal(){document.getElementById('apiInput').value=apiKey;document.getElementById('apiModal').classList.add('open')}
+function closeApiModal(){document.getElementById('apiModal').classList.remove('open')}
+function saveKey(){const k=document.getElementById('apiInput').value.trim();if(!k.startsWith('sk-ant-')){toast('❌ 올바른 API 키 형식이 아니에요');return}apiKey=k;localStorage.setItem('apiKey',k);document.getElementById('apiBtn').classList.add('active');document.getElementById('apiLabel').textContent='연결됨 ✓';closeApiModal();toast('✅ API 키 설정 완료!')}
+
+document.getElementById('yearsLabel').textContent=getYears(db.settings.hireDate);
+if(apiKey){document.getElementById('apiBtn').classList.add('active');document.getElementById('apiLabel').textContent='연결됨 ✓'}
+renderCases();renderContracts();renderMemos();updateCtx();renderMsgs();
+</script>
+</body>
+</html>

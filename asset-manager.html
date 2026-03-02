@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>윤재무 · 자산 관리 어드바이저</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Fraunces:wght@700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#fdfbf0; --white:#fff; --s1:#fdf9e8; --border:#f0e8c0; --border2:#e8d890;
+  --text:#1f1a08; --muted:#a09050; --muted2:#7a6a30;
+  --amber:#f59e0b; --amber-d:#d97706; --amber-l:#fffbeb; --amber-ll:#fdfbf0;
+  --green:#10b981; --green-l:#ecfdf5; --green-d:#059669;
+  --red:#ef4444; --red-l:#fef2f2; --blue:#3b82f6; --blue-l:#eff6ff;
+  --mono:'IBM Plex Mono',monospace; --serif:'Fraunces',serif; --sans:'Noto Sans KR',sans-serif;
+  --r:16px; --r-sm:10px; --shadow:0 2px 16px rgba(245,158,11,0.09); --shadow-lg:0 8px 40px rgba(245,158,11,0.16);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.staff-badge{display:flex;align-items:center;gap:12px}
+.badge-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#451a03,#92400e);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative}
+.badge-online{position:absolute;bottom:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid var(--white);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.badge-name{font-size:15px;font-weight:700}.badge-role{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.badge-dept{background:var(--amber-l);color:var(--amber-d);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:99px;font-family:var(--mono)}
+.back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted2);text-decoration:none}
+.back-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-l)}
+.api-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted2)}
+.api-btn:hover{border-color:var(--amber);color:var(--amber)}.api-btn.active{border-color:var(--amber);color:var(--amber-d);background:var(--amber-l)}
+.layout{display:grid;grid-template-columns:1fr 400px;height:calc(100vh - 60px);overflow:hidden}
+.left-col{overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.left-col::-webkit-scrollbar{width:4px}.left-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* 총자산 요약 */
+.summary-card{background:linear-gradient(135deg,#1c1400,#3d2a00);border-radius:var(--r);padding:22px 24px;color:#fff;box-shadow:var(--shadow-lg)}
+.summary-label{font-size:11px;color:rgba(255,255,255,.5);font-family:var(--mono);letter-spacing:1px;margin-bottom:6px}
+.summary-total{font-family:var(--serif);font-size:32px;font-weight:700;margin-bottom:4px}
+.summary-sub{font-size:12px;color:rgba(255,255,255,.5)}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.summary-item{background:rgba(255,255,255,.07);border-radius:10px;padding:10px 12px}
+.summary-item-label{font-size:10px;color:rgba(255,255,255,.5);font-family:var(--mono);margin-bottom:4px}
+.summary-item-val{font-size:15px;font-weight:700}
+.val-green{color:#34d399}.val-red{color:#f87171}.val-amber{color:#fbbf24}
+
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+.card-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.add-btn{font-size:11px;padding:4px 12px;border-radius:99px;border:1.5px solid var(--border2);background:var(--s1);color:var(--muted2);cursor:pointer;transition:all .15s;font-family:inherit}
+.add-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-l)}
+.form-wrap{background:var(--amber-ll);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:12px;display:none;flex-direction:column;gap:8px}
+.form-wrap.open{display:flex}
+.f-input,.f-select,.f-ta{width:100%;padding:9px 12px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s}
+.f-input:focus,.f-select:focus,.f-ta:focus{border-color:var(--amber)}
+.f-ta{resize:vertical;min-height:60px;line-height:1.6}
+.f-row{display:flex;gap:8px}
+.f-save{padding:8px 18px;background:var(--amber);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+.f-save:hover{background:var(--amber-d)}
+.items{display:flex;flex-direction:column;gap:7px}
+.item{background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;display:flex;align-items:flex-start;gap:10px;transition:all .15s}
+.item:hover{border-color:var(--border2);background:var(--white);box-shadow:var(--shadow)}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:13px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item-sub{font-size:11px;color:var(--muted2);line-height:1.5}
+.item-amount{font-family:var(--mono);font-size:14px;font-weight:700;white-space:nowrap;flex-shrink:0;padding-top:1px}
+.item-del{color:var(--muted);font-size:13px;cursor:pointer;padding:2px;border:none;background:none;border-radius:4px;transition:color .15s;flex-shrink:0}
+.item-del:hover{color:#ef4444}
+.empty-state{text-align:center;padding:24px 0;color:var(--muted);font-size:13px}
+.chip{display:inline-flex;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;font-family:var(--mono)}
+.chip-green{background:var(--green-l);color:var(--green-d)}.chip-red{background:var(--red-l);color:var(--red)}
+.chip-blue{background:var(--blue-l);color:var(--blue)}.chip-amber{background:var(--amber-l);color:var(--amber-d)}
+
+/* 채팅 */
+.chat-col{border-left:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;height:100%}
+.chat-header{padding:16px 18px;border-bottom:1px solid var(--border);background:var(--amber-ll);flex-shrink:0}
+.chat-header-title{font-size:13px;font-weight:700;color:var(--amber-d);margin-bottom:2px}
+.chat-header-sub{font-size:11px;color:var(--muted)}
+.ctx-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.ctx-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--white);border:1px solid var(--amber);color:var(--amber-d);font-family:var(--mono)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msgs::-webkit-scrollbar{width:3px}.chat-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.msg{display:flex;flex-direction:column;gap:4px;animation:msgIn .25s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{align-items:flex-end}.msg.ai{align-items:flex-start}
+.msg-bubble{max-width:86%;padding:10px 14px;font-size:13px;line-height:1.75;border-radius:14px}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--amber),#fbbf24);color:#1f1a08;border-bottom-right-radius:3px}
+.msg.ai .msg-bubble{background:var(--s1);border:1.5px solid var(--border);color:var(--text);border-bottom-left-radius:3px}
+.msg-time{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;border-bottom-left-radius:3px;width:fit-content}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:td 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.quick-qs{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.qq{font-size:11px;padding:5px 11px;border-radius:99px;border:1.5px solid var(--border);background:var(--s1);color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.qq:hover{border-color:var(--amber);color:var(--amber-d);background:var(--amber-l)}
+.chat-input-wrap{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.chat-ta{flex:1;padding:10px 13px;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;resize:none;outline:none;max-height:100px;min-height:42px;transition:border-color .2s;line-height:1.5}
+.chat-ta:focus{border-color:var(--amber);background:var(--white)}
+.send-btn{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--amber),#fbbf24);color:#1f1a08;border:none;cursor:pointer;font-size:16px;flex-shrink:0;transition:all .2s}
+.send-btn:hover{opacity:.85;transform:scale(1.05)}.send-btn:disabled{opacity:.35;cursor:default;transform:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--white);border-radius:var(--r);padding:28px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);transform:scale(.95);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-title{font-family:var(--serif);font-size:20px;margin-bottom:6px}
+.modal-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.m-input{width:100%;padding:10px 13px;background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:var(--mono);color:var(--text);outline:none;margin-bottom:12px;transition:border-color .2s}
+.m-input:focus{border-color:var(--amber)}
+.m-btns{display:flex;gap:8px}
+.m-ok{flex:1;padding:11px;background:var(--amber);color:#fff;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.m-ok:hover{background:var(--amber-d)}
+.m-cancel{padding:11px 16px;background:var(--s1);color:var(--muted2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:var(--shadow-lg);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.msg-bubble p{margin-bottom:6px}.msg-bubble p:last-child{margin-bottom:0}
+.msg-bubble ul,.msg-bubble ol{padding-left:16px;margin:5px 0}.msg-bubble li{margin-bottom:3px}
+.msg-bubble strong{font-weight:700}.msg-bubble code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="staff-badge">
+    <div class="badge-avatar">💰<div class="badge-online"></div></div>
+    <div>
+      <div class="badge-name">윤재무</div>
+      <div class="badge-role">ASSET ADVISOR · <span id="yearsLabel"></span></div>
+    </div>
+    <div class="badge-dept">재무팀</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a class="back-btn" href="my-ai-staff-v2.html">← 허브로</a>
+    <button class="api-btn" id="apiBtn" onclick="openApiModal()">🔑 <span id="apiLabel">API 키</span></button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="left-col">
+
+    <!-- 총자산 요약 -->
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-label">TOTAL ASSETS</div>
+      <div class="summary-total" id="totalAssets">₩0</div>
+      <div class="summary-sub">보유 자산 합계</div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-item-label">이번달 수입</div>
+          <div class="summary-item-val val-green" id="monthIncome">₩0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-item-label">이번달 지출</div>
+          <div class="summary-item-val val-red" id="monthExpense">₩0</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-item-label">잔액</div>
+          <div class="summary-item-val val-amber" id="monthBalance">₩0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 보유 자산 -->
+    <div class="card">
+      <div class="card-title">💰 보유 자산 <button class="add-btn" onclick="toggleForm('assetForm')">+ 추가</button></div>
+      <div class="form-wrap" id="assetForm">
+        <div class="f-row">
+          <input class="f-input" id="a-name" placeholder="자산명 (예: 삼성전자 주식)">
+          <select class="f-select" id="a-type">
+            <option>주식</option><option>ETF</option><option>부동산</option>
+            <option>예금/적금</option><option>현금</option><option>코인</option><option>기타</option>
+          </select>
+        </div>
+        <div class="f-row">
+          <input class="f-input" id="a-amount" type="number" placeholder="평가금액 (원)">
+          <input class="f-input" id="a-buy" type="number" placeholder="매입금액 (원)">
+        </div>
+        <input class="f-input" id="a-memo" placeholder="메모 (수량, 비고 등)">
+        <button class="f-save" onclick="addAsset()">저장</button>
+      </div>
+      <div class="items" id="assetItems"></div>
+    </div>
+
+    <!-- 수입/지출 -->
+    <div class="card">
+      <div class="card-title">💸 수입 & 지출 <button class="add-btn" onclick="toggleForm('expenseForm')">+ 추가</button></div>
+      <div class="form-wrap" id="expenseForm">
+        <div class="f-row">
+          <select class="f-select" id="e-type">
+            <option value="income">💚 수입</option>
+            <option value="expense">🔴 지출</option>
+          </select>
+          <input class="f-input" id="e-amount" type="number" placeholder="금액 (원)">
+        </div>
+        <div class="f-row">
+          <input class="f-input" id="e-name" placeholder="항목 (예: 월급, 식비)">
+          <select class="f-select" id="e-cat">
+            <option>급여</option><option>부수입</option><option>식비</option>
+            <option>교통</option><option>주거</option><option>쇼핑</option>
+            <option>의료</option><option>구독</option><option>투자</option><option>기타</option>
+          </select>
+        </div>
+        <input class="f-input" id="e-date" type="date">
+        <button class="f-save" onclick="addExpense()">저장</button>
+      </div>
+      <div class="items" id="expenseItems"></div>
+    </div>
+
+    <!-- 재무 목표 -->
+    <div class="card">
+      <div class="card-title">🎯 재무 목표 <button class="add-btn" onclick="toggleForm('goalForm')">+ 추가</button></div>
+      <div class="form-wrap" id="goalForm">
+        <input class="f-input" id="g-title" placeholder="목표 (예: 비상금 1000만원)">
+        <div class="f-row">
+          <input class="f-input" id="g-target" type="number" placeholder="목표금액 (원)">
+          <input class="f-input" id="g-current" type="number" placeholder="현재금액 (원)">
+          <input class="f-input" id="g-deadline" type="date">
+        </div>
+        <button class="f-save" onclick="addGoal()">저장</button>
+      </div>
+      <div class="items" id="goalItems"></div>
+    </div>
+
+  </div>
+
+  <!-- 채팅 -->
+  <div class="chat-col">
+    <div class="chat-header">
+      <div class="chat-header-title">💰 윤재무와 상담</div>
+      <div class="chat-header-sub">자산 현황, 투자 전략, 절세 등을 물어보세요.</div>
+      <div class="ctx-pills" id="ctxPills"></div>
+    </div>
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <div class="quick-qs">
+      <div class="qq" onclick="ask('내 자산 현황 분석해줘')">자산 분석</div>
+      <div class="qq" onclick="ask('이번달 지출 패턴 알려줘')">지출 패턴</div>
+      <div class="qq" onclick="ask('목표 달성 가능한지 봐줘')">목표 점검</div>
+      <div class="qq" onclick="ask('절세 방법 추천해줘')">절세 방법</div>
+      <div class="qq" onclick="ask('포트폴리오 분산 어때?')">포트폴리오</div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-ta" id="chatInput" placeholder="자산 관련 질문이나 고민을 말해보세요..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <div class="modal-title">🔑 API 키 설정</div>
+    <div class="modal-desc"><a href="https://console.anthropic.com" target="_blank" style="color:var(--amber-d)">console.anthropic.com</a>에서 발급한 키를 입력하세요.</div>
+    <input class="m-input" id="apiInput" type="password" placeholder="sk-ant-...">
+    <div class="m-btns">
+      <button class="m-cancel" onclick="closeApiModal()">취소</button>
+      <button class="m-ok" onclick="saveKey()">저장</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let db=JSON.parse(localStorage.getItem('asset_v1')||'{}');
+if(!db.assets)db.assets=[];if(!db.expenses)db.expenses=[];if(!db.goals)db.goals=[];
+if(!db.history)db.history=[];if(!db.settings)db.settings={name:'윤재무',hireDate:'2023-11-01',tone:'formal'};
+let apiKey=localStorage.getItem('apiKey')||'';let isLoading=false;
+function save(){localStorage.setItem('asset_v1',JSON.stringify(db))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}
+function getYears(d){const m=Math.floor((new Date()-new Date(d))/(1000*60*60*24*30.5));return m<12?`${m}개월차`:`${Math.floor(m/12)}년 ${m%12}개월차`}
+function fmt(n){return Number(n||0).toLocaleString('ko-KR')}
+function toggleForm(id){const el=document.getElementById(id);el.classList.toggle('open');if(el.classList.contains('open'))el.querySelector('.f-input')?.focus()}
+
+// SUMMARY
+function updateSummary(){
+  const total=db.assets.reduce((s,a)=>s+(+a.amount||0),0);
+  document.getElementById('totalAssets').textContent=`₩${fmt(total)}`;
+  const thisMonth=new Date().toISOString().slice(0,7);
+  const income=db.expenses.filter(e=>e.etype==='income'&&e.date?.startsWith(thisMonth)).reduce((s,e)=>s+(+e.amount||0),0);
+  const expense=db.expenses.filter(e=>e.etype==='expense'&&e.date?.startsWith(thisMonth)).reduce((s,e)=>s+(+e.amount||0),0);
+  document.getElementById('monthIncome').textContent=`+₩${fmt(income)}`;
+  document.getElementById('monthExpense').textContent=`-₩${fmt(expense)}`;
+  const bal=income-expense;
+  const balEl=document.getElementById('monthBalance');
+  balEl.textContent=`${bal>=0?'+':''}₩${fmt(Math.abs(bal))}`;
+  balEl.className=`summary-item-val ${bal>=0?'val-green':'val-red'}`;
+}
+
+// ASSET
+function addAsset(){
+  const name=document.getElementById('a-name').value.trim();
+  if(!name){toast('자산명을 입력해주세요!');return}
+  db.assets.push({id:Date.now().toString(),name,type:document.getElementById('a-type').value,amount:document.getElementById('a-amount').value,buy:document.getElementById('a-buy').value,memo:document.getElementById('a-memo').value.trim(),createdAt:new Date().toISOString()});
+  save();renderAssets();updateSummary();updateCtx();toggleForm('assetForm');
+  ['a-name','a-amount','a-buy','a-memo'].forEach(id=>document.getElementById(id).value='');toast('✅ 자산 추가됐어요!')
+}
+function renderAssets(){
+  const el=document.getElementById('assetItems');
+  if(!db.assets.length){el.innerHTML='<div class="empty-state">보유 자산을 추가해보세요!</div>';return}
+  const typeColor={주식:'chip-blue',ETF:'chip-green',부동산:'chip-amber',코인:'chip-red','예금/적금':'chip-green'};
+  el.innerHTML=db.assets.map(a=>{
+    const profit=a.buy?(+a.amount-+a.buy)/(+a.buy)*100:null;
+    const profitStr=profit!==null?`<span class="chip ${profit>=0?'chip-green':'chip-red'}">${profit>=0?'+':''}${profit.toFixed(1)}%</span>`:'';
+    return`<div class="item">
+      <div class="item-body">
+        <div class="item-title">${a.name}<span class="chip ${typeColor[a.type]||'chip-amber'}">${a.type}</span>${profitStr}</div>
+        ${a.memo?`<div class="item-sub">${a.memo}</div>`:''}
+        ${a.buy?`<div class="item-sub">매입가: ₩${fmt(a.buy)}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="item-amount">₩${fmt(a.amount)}</div>
+        <button class="item-del" onclick="del('assets','${a.id}')">✕</button>
+      </div>
+    </div>`}).join('')
+}
+
+// EXPENSE
+function addExpense(){
+  const name=document.getElementById('e-name').value.trim();
+  const amount=document.getElementById('e-amount').value;
+  if(!name||!amount){toast('항목과 금액을 입력해주세요!');return}
+  const date=document.getElementById('e-date').value||new Date().toISOString().slice(0,10);
+  db.expenses.unshift({id:Date.now().toString(),name,etype:document.getElementById('e-type').value,amount,cat:document.getElementById('e-cat').value,date,createdAt:new Date().toISOString()});
+  if(db.expenses.length>100)db.expenses=db.expenses.slice(0,100);
+  save();renderExpenses();updateSummary();updateCtx();toggleForm('expenseForm');
+  ['e-name','e-amount'].forEach(id=>document.getElementById(id).value='');toast('✅ 추가됐어요!')
+}
+function renderExpenses(){
+  const el=document.getElementById('expenseItems');
+  if(!db.expenses.length){el.innerHTML='<div class="empty-state">수입/지출을 기록해보세요!</div>';return}
+  el.innerHTML=db.expenses.slice(0,12).map(e=>`
+    <div class="item">
+      <div class="item-body">
+        <div class="item-title">${e.name}<span class="chip ${e.etype==='income'?'chip-green':'chip-red'}">${e.cat}</span></div>
+        <div class="item-sub">${e.date}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="item-amount" style="color:${e.etype==='income'?'var(--green-d)':'var(--red)'}">${e.etype==='income'?'+':'-'}₩${fmt(e.amount)}</div>
+        <button class="item-del" onclick="del('expenses','${e.id}')">✕</button>
+      </div>
+    </div>`).join('')
+}
+
+// GOAL
+function addGoal(){
+  const title=document.getElementById('g-title').value.trim();
+  if(!title){toast('목표를 입력해주세요!');return}
+  db.goals.push({id:Date.now().toString(),title,target:document.getElementById('g-target').value,current:document.getElementById('g-current').value,deadline:document.getElementById('g-deadline').value,createdAt:new Date().toISOString()});
+  save();renderGoals();updateCtx();toggleForm('goalForm');
+  ['g-title','g-target','g-current','g-deadline'].forEach(id=>document.getElementById(id).value='');toast('✅ 목표 추가됐어요!')
+}
+function renderGoals(){
+  const el=document.getElementById('goalItems');
+  if(!db.goals.length){el.innerHTML='<div class="empty-state">재무 목표를 설정해보세요!</div>';return}
+  el.innerHTML=db.goals.map(g=>{
+    const pct=g.target&&g.current?Math.min(100,Math.round(+g.current/+g.target*100)):0;
+    return`<div class="item">
+      <div class="item-body">
+        <div class="item-title">${g.title}</div>
+        <div style="margin-top:6px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-bottom:4px">
+            <span>${g.current?`₩${fmt(g.current)}`:'-'} / ${g.target?`₩${fmt(g.target)}`:'-'}</span>
+            <span>${g.deadline||''}</span>
+          </div>
+          <div style="height:6px;background:var(--border);border-radius:99px;overflow:hidden">
+            <div style="height:100%;background:linear-gradient(90deg,var(--amber),var(--green));border-radius:99px;width:${pct}%;transition:width .4s"></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:var(--mono)">${pct}% 달성</div>
+        </div>
+      </div>
+      <button class="item-del" onclick="del('goals','${g.id}')">✕</button>
+    </div>`}).join('')
+}
+
+function del(key,id){db[key]=db[key].filter(x=>x.id!==id);save();if(key==='assets'){renderAssets();updateSummary();}else if(key==='expenses'){renderExpenses();updateSummary();}else renderGoals();updateCtx();toast('삭제됐어요.')}
+
+function updateCtx(){
+  const pills=[];
+  if(db.assets.length)pills.push(`💰 자산 ${db.assets.length}건`);
+  if(db.expenses.length)pills.push(`💸 거래 ${db.expenses.length}건`);
+  if(db.goals.length)pills.push(`🎯 목표 ${db.goals.length}건`);
+  document.getElementById('ctxPills').innerHTML=pills.map(p=>`<span class="ctx-pill">${p}</span>`).join('')
+}
+
+function buildCtx(){
+  const today=new Date().toISOString().slice(0,10);
+  const total=db.assets.reduce((s,a)=>s+(+a.amount||0),0);
+  const parts=[`[오늘: ${today}]`,`[총 자산: ₩${fmt(total)}]`];
+  if(db.assets.length){parts.push('[보유 자산]');db.assets.forEach(a=>{const profit=a.buy?(+a.amount-+a.buy)/(+a.buy)*100:null;parts.push(`• ${a.name}(${a.type}) ₩${fmt(a.amount)}${profit!==null?' 수익률:'+profit.toFixed(1)+'%':''}${a.memo?' '+a.memo:''}`)})}
+  const thisMonth=today.slice(0,7);
+  const income=db.expenses.filter(e=>e.etype==='income'&&e.date?.startsWith(thisMonth)).reduce((s,e)=>s+(+e.amount||0),0);
+  const expense=db.expenses.filter(e=>e.etype==='expense'&&e.date?.startsWith(thisMonth)).reduce((s,e)=>s+(+e.amount||0),0);
+  if(income||expense)parts.push(`[이번달] 수입: ₩${fmt(income)} / 지출: ₩${fmt(expense)} / 잔액: ₩${fmt(income-expense)}`);
+  if(db.expenses.length){parts.push('[최근 거래]');db.expenses.slice(0,8).forEach(e=>parts.push(`• ${e.date} ${e.etype==='income'?'+':'-'}₩${fmt(e.amount)} ${e.name}(${e.cat})`))}
+  if(db.goals.length){parts.push('[재무 목표]');db.goals.forEach(g=>{const pct=g.target&&g.current?Math.round(+g.current/+g.target*100):0;parts.push(`• ${g.title}: ${pct}% 달성${g.deadline?' 기한:'+g.deadline:''}`)})}
+  return parts.join('\n')
+}
+
+function buildSystem(){
+  return`당신은 "${db.settings.name}"이라는 자산 관리 어드바이저 AI 직원입니다.
+경력: ${getYears(db.settings.hireDate)} | 말투: 격식체(존댓말), 분석적이고 신중하게 | 사용자를 "사장님"이라 부름
+전문분야: 주식/ETF/부동산 투자, 포트폴리오 구성, 절세 전략, 가계부 분석, 재무 목표 관리
+
+중요: 구체적인 종목 추천이나 투자 권유는 하지 말고, 전략·방향성 중심으로 조언하세요.
+답변 말미에 "※ 투자는 개인 판단 책임이며, 전문 금융사와 상담을 권장드립니다."를 포함하세요.
+
+=== 사용자 자산 데이터 (필수 참고) ===
+${buildCtx()}
+===
+위 데이터를 바탕으로 개인화된 자산 분석과 전략을 제공하세요.`
+}
+
+function renderMsgs(){
+  const el=document.getElementById('chatMsgs');
+  if(!db.history.length){el.innerHTML=`<div class="msg ai"><div class="msg-bubble"><p>안녕하세요. 자산 관리 어드바이저 ${db.settings.name}입니다 💰</p><p>왼쪽에 보유 자산, 수입/지출, 재무 목표를 입력하시면 맞춤 자산 분석을 드릴 수 있습니다!</p></div><div class="msg-time">지금</div></div>`}
+  else{el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('')}
+  el.scrollTop=el.scrollHeight
+}
+
+function ask(q){document.getElementById('chatInput').value=q;send()}
+
+async function send(){
+  if(isLoading)return;if(!apiKey){openApiModal();toast('API 키를 먼저 설정해주세요!');return}
+  const input=document.getElementById('chatInput');const text=input.value.trim();if(!text)return;
+  const t=now();const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  db.history.push({role:'user',content:`<p>${esc}</p>`,time:t});input.value='';input.style.height='auto';
+  const el=document.getElementById('chatMsgs');
+  el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('');
+  const tyEl=document.createElement('div');tyEl.className='msg ai';tyEl.innerHTML=`<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  el.appendChild(tyEl);el.scrollTop=el.scrollHeight;isLoading=true;document.getElementById('sendBtn').disabled=true;
+  try{
+    const msgs=db.history.slice(-14).map(m=>({role:m.role,content:m.content.replace(/<[^>]+>/g,'')}));
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:buildSystem(),messages:msgs})});
+    const data=await res.json();tyEl.remove();if(data.error)throw new Error(data.error.message);
+    const reply=fmtMd(data.content[0].text);db.history.push({role:'assistant',content:reply,time:now()});save();
+    el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('');el.scrollTop=el.scrollHeight;
+  }catch(err){tyEl.remove();el.innerHTML+=`<div class="msg ai"><div class="msg-bubble" style="border-color:#fca5a5;color:#ef4444">❌ ${err.message}</div></div>`;el.scrollTop=el.scrollHeight}
+  finally{isLoading=false;document.getElementById('sendBtn').disabled=false}
+}
+
+function fmtMd(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/### (.+)/gm,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^\d+\. (.+)$/gm,'<li>$1</li>').replace(/^[-•] (.+)$/gm,'<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>').split('\n\n').map(p=>p.startsWith('<')?p:`<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}
+function openApiModal(){document.getElementById('apiInput').value=apiKey;document.getElementById('apiModal').classList.add('open')}
+function closeApiModal(){document.getElementById('apiModal').classList.remove('open')}
+function saveKey(){const k=document.getElementById('apiInput').value.trim();if(!k.startsWith('sk-ant-')){toast('❌ 올바른 API 키 형식이 아니에요');return}apiKey=k;localStorage.setItem('apiKey',k);document.getElementById('apiBtn').classList.add('active');document.getElementById('apiLabel').textContent='연결됨 ✓';closeApiModal();toast('✅ API 키 설정 완료!')}
+
+document.getElementById('yearsLabel').textContent=getYears(db.settings.hireDate);
+document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
+if(apiKey){document.getElementById('apiBtn').classList.add('active');document.getElementById('apiLabel').textContent='연결됨 ✓'}
+renderAssets();renderExpenses();renderGoals();updateSummary();updateCtx();renderMsgs();
+</script>
+</body>
+</html>

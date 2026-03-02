@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>김지성 · 학습 코치</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Fraunces:wght@700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0f4ff; --white:#fff; --s1:#f5f8ff; --border:#e0e8ff; --border2:#c8d6ff;
+  --text:#1a1f35; --muted:#8896c0; --muted2:#5a6890;
+  --blue:#3b82f6; --blue-d:#1d4ed8; --blue-l:#eff6ff; --blue-ll:#f0f4ff;
+  --indigo:#6366f1; --violet:#8b5cf6;
+  --mono:'IBM Plex Mono',monospace; --serif:'Fraunces',serif; --sans:'Noto Sans KR',sans-serif;
+  --r:16px; --r-sm:10px; --shadow:0 2px 16px rgba(59,130,246,0.08); --shadow-lg:0 8px 40px rgba(59,130,246,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.staff-badge{display:flex;align-items:center;gap:12px}
+.badge-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1e3a5f,#1e40af);display:flex;align-items:center;justify-content:center;font-size:18px;position:relative}
+.badge-online{position:absolute;bottom:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid var(--white);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.badge-name{font-size:15px;font-weight:700}.badge-role{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.badge-dept{background:var(--blue-l);color:var(--blue-d);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:99px;font-family:var(--mono)}
+.back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted2);text-decoration:none}
+.back-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.api-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--white);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted2)}
+.api-btn:hover{border-color:var(--blue);color:var(--blue)}.api-btn.active{border-color:var(--blue);color:var(--blue-d);background:var(--blue-l)}
+.layout{display:grid;grid-template-columns:1fr 400px;height:calc(100vh - 60px);overflow:hidden}
+.left-col{overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.left-col::-webkit-scrollbar{width:4px}.left-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* 카드 */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+.card-title{font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.add-btn{font-size:11px;padding:4px 12px;border-radius:99px;border:1.5px solid var(--border2);background:var(--s1);color:var(--muted2);cursor:pointer;transition:all .15s;font-family:inherit}
+.add-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+
+/* 폼 */
+.form-wrap{background:var(--blue-ll);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:12px;display:none;flex-direction:column;gap:8px}
+.form-wrap.open{display:flex}
+.f-input,.f-select,.f-ta{width:100%;padding:9px 12px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s}
+.f-input:focus,.f-select:focus,.f-ta:focus{border-color:var(--blue)}
+.f-ta{resize:vertical;min-height:64px;line-height:1.6}
+.f-row{display:flex;gap:8px}
+.f-save{padding:8px 18px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+.f-save:hover{background:var(--blue-d)}
+
+/* 아이템 */
+.items{display:flex;flex-direction:column;gap:7px}
+.item{background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;display:flex;align-items:flex-start;gap:10px;transition:all .15s}
+.item:hover{border-color:var(--border2);background:var(--white);box-shadow:var(--shadow)}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.item-sub{font-size:11px;color:var(--muted2);line-height:1.5}
+.item-meta{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px}
+.item-del{color:var(--muted);font-size:13px;cursor:pointer;padding:2px;border:none;background:none;border-radius:4px;transition:color .15s;flex-shrink:0}
+.item-del:hover{color:#ef4444}
+.empty-state{text-align:center;padding:24px 0;color:var(--muted);font-size:13px}
+.badge-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;font-family:var(--mono)}
+.chip-blue{background:var(--blue-l);color:var(--blue-d)}
+.chip-green{background:#ecfdf5;color:#059669}
+.chip-amber{background:#fffbeb;color:#d97706}
+.chip-red{background:#fef2f2;color:#dc2626}
+
+/* 진도 바 */
+.progress-wrap{margin-top:6px}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);margin-bottom:4px}
+.progress-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--indigo));border-radius:99px;transition:width .4s}
+
+/* 채팅 */
+.chat-col{border-left:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;height:100%}
+.chat-header{padding:16px 18px;border-bottom:1px solid var(--border);background:var(--blue-ll);flex-shrink:0}
+.chat-header-title{font-size:13px;font-weight:700;color:var(--blue-d);margin-bottom:2px}
+.chat-header-sub{font-size:11px;color:var(--muted)}
+.ctx-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.ctx-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--white);border:1px solid var(--blue);color:var(--blue-d);font-family:var(--mono)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msgs::-webkit-scrollbar{width:3px}.chat-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.msg{display:flex;flex-direction:column;gap:4px;animation:msgIn .25s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{align-items:flex-end}.msg.ai{align-items:flex-start}
+.msg-bubble{max-width:86%;padding:10px 14px;font-size:13px;line-height:1.75;border-radius:14px}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;border-bottom-right-radius:3px}
+.msg.ai .msg-bubble{background:var(--s1);border:1.5px solid var(--border);color:var(--text);border-bottom-left-radius:3px}
+.msg-time{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:var(--s1);border:1.5px solid var(--border);border-radius:14px;border-bottom-left-radius:3px;width:fit-content}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:td 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.quick-qs{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.qq{font-size:11px;padding:5px 11px;border-radius:99px;border:1.5px solid var(--border);background:var(--s1);color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.qq:hover{border-color:var(--blue);color:var(--blue-d);background:var(--blue-l)}
+.chat-input-wrap{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.chat-ta{flex:1;padding:10px 13px;background:var(--s1);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;resize:none;outline:none;max-height:100px;min-height:42px;transition:border-color .2s;line-height:1.5}
+.chat-ta:focus{border-color:var(--blue);background:var(--white)}
+.send-btn{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;border:none;cursor:pointer;font-size:16px;flex-shrink:0;transition:all .2s}
+.send-btn:hover{opacity:.85;transform:scale(1.05)}.send-btn:disabled{opacity:.35;cursor:default;transform:none}
+/* API 모달 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--white);border-radius:var(--r);padding:28px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);transform:scale(.95);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-title{font-family:var(--serif);font-size:20px;margin-bottom:6px}
+.modal-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.m-input{width:100%;padding:10px 13px;background:var(--s1);border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:var(--mono);color:var(--text);outline:none;margin-bottom:12px;transition:border-color .2s}
+.m-input:focus{border-color:var(--blue)}
+.m-btns{display:flex;gap:8px}
+.m-ok{flex:1;padding:11px;background:var(--blue);color:#fff;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.m-ok:hover{background:var(--blue-d)}
+.m-cancel{padding:11px 16px;background:var(--s1);color:var(--muted2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.m-cancel:hover{background:var(--border)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:var(--shadow-lg);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.msg-bubble p{margin-bottom:6px}.msg-bubble p:last-child{margin-bottom:0}
+.msg-bubble ul,.msg-bubble ol{padding-left:16px;margin:5px 0}.msg-bubble li{margin-bottom:3px}
+.msg-bubble strong{font-weight:700}
+.msg-bubble code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="staff-badge">
+    <div class="badge-avatar">📚<div class="badge-online"></div></div>
+    <div>
+      <div class="badge-name">김지성</div>
+      <div class="badge-role">STUDY COACH · <span id="yearsLabel"></span></div>
+    </div>
+    <div class="badge-dept">교육지원팀</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <a class="back-btn" href="my-ai-staff-v2.html">← 허브로</a>
+    <button class="api-btn" id="apiBtn" onclick="openApiModal()">🔑 <span id="apiLabel">API 키</span></button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="left-col">
+
+    <!-- 학습 목표 -->
+    <div class="card">
+      <div class="card-title">🎯 학습 목표 <button class="add-btn" onclick="toggleForm('goalForm')">+ 추가</button></div>
+      <div class="form-wrap" id="goalForm">
+        <input class="f-input" id="g-title" placeholder="목표 (예: 토익 900점)">
+        <div class="f-row">
+          <input class="f-input" id="g-deadline" type="date" placeholder="목표 기한">
+          <select class="f-select" id="g-progress">
+            <option value="0">0% 시작 전</option><option value="25">25% 초반</option>
+            <option value="50">50% 중반</option><option value="75">75% 후반</option><option value="100">100% 완료</option>
+          </select>
+        </div>
+        <input class="f-input" id="g-memo" placeholder="메모 (선택)">
+        <button class="f-save" onclick="addGoal()">저장</button>
+      </div>
+      <div class="items" id="goalItems"></div>
+    </div>
+
+    <!-- 공부 중인 과목 -->
+    <div class="card">
+      <div class="card-title">📖 공부 중인 과목 <button class="add-btn" onclick="toggleForm('subjectForm')">+ 추가</button></div>
+      <div class="form-wrap" id="subjectForm">
+        <div class="f-row">
+          <input class="f-input" id="s-name" placeholder="과목명 (예: 수학, 영어)">
+          <select class="f-select" id="s-level">
+            <option value="입문">입문</option><option value="기초">기초</option>
+            <option value="중급">중급</option><option value="고급">고급</option>
+          </select>
+        </div>
+        <input class="f-input" id="s-current" placeholder="현재 공부 내용 (예: 미적분 개념)">
+        <input class="f-input" id="s-goal" placeholder="목표 (예: 수능 1등급)">
+        <button class="f-save" onclick="addSubject()">저장</button>
+      </div>
+      <div class="items" id="subjectItems"></div>
+    </div>
+
+    <!-- 학습 기록 -->
+    <div class="card">
+      <div class="card-title">📊 학습 기록 <button class="add-btn" onclick="toggleForm('logForm')">+ 기록</button></div>
+      <div class="form-wrap" id="logForm">
+        <div class="f-row">
+          <input class="f-input" id="l-date" type="date">
+          <input class="f-input" id="l-hours" type="number" placeholder="공부시간(h)" min="0" max="24" step="0.5">
+        </div>
+        <input class="f-input" id="l-subject" placeholder="과목">
+        <textarea class="f-ta" id="l-content" placeholder="공부한 내용, 느낀 점"></textarea>
+        <button class="f-save" onclick="addLog()">저장</button>
+      </div>
+      <div class="items" id="logItems"></div>
+    </div>
+
+  </div>
+
+  <!-- 채팅 -->
+  <div class="chat-col">
+    <div class="chat-header">
+      <div class="chat-header-title">💬 김지성과 대화</div>
+      <div class="chat-header-sub">학습 계획, 개념 설명, 동기부여 등 뭐든 물어보세요!</div>
+      <div class="ctx-pills" id="ctxPills"></div>
+    </div>
+    <div class="chat-msgs" id="chatMsgs"></div>
+    <div class="quick-qs">
+      <div class="qq" onclick="ask('오늘 공부 계획 짜줘')">오늘 계획</div>
+      <div class="qq" onclick="ask('학습 진도 체크해줘')">진도 체크</div>
+      <div class="qq" onclick="ask('공부 동기부여 해줘')">동기부여</div>
+      <div class="qq" onclick="ask('약한 부분 분석해줘')">약점 분석</div>
+    </div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-ta" id="chatInput" placeholder="질문하거나 공부 고민을 말해보세요..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <div class="modal-title">🔑 API 키 설정</div>
+    <div class="modal-desc"><a href="https://console.anthropic.com" target="_blank" style="color:var(--blue)">console.anthropic.com</a>에서 발급한 키를 입력하세요.</div>
+    <input class="m-input" id="apiInput" type="password" placeholder="sk-ant-...">
+    <div class="m-btns">
+      <button class="m-cancel" onclick="closeApiModal()">취소</button>
+      <button class="m-ok" onclick="saveKey()">저장</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// STATE
+let db = JSON.parse(localStorage.getItem('study_v1')||'{}');
+if(!db.goals) db.goals=[];
+if(!db.subjects) db.subjects=[];
+if(!db.logs) db.logs=[];
+if(!db.history) db.history=[];
+if(!db.settings) db.settings={name:'김지성',hireDate:'2024-03-01',tone:'friendly'};
+let apiKey = localStorage.getItem('apiKey')||'';
+let isLoading=false;
+
+function save(){localStorage.setItem('study_v1',JSON.stringify(db))}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function now(){return new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}
+function getYears(d){const m=Math.floor((new Date()-new Date(d))/(1000*60*60*24*30.5));return m<12?`${m}개월차`:`${Math.floor(m/12)}년 ${m%12}개월차`}
+function toggleForm(id){const el=document.getElementById(id);el.classList.toggle('open');if(el.classList.contains('open'))el.querySelector('.f-input')?.focus()}
+
+// GOAL
+function addGoal(){
+  const title=document.getElementById('g-title').value.trim();
+  if(!title){toast('목표를 입력해주세요!');return}
+  db.goals.push({id:Date.now().toString(),title,deadline:document.getElementById('g-deadline').value,progress:+document.getElementById('g-progress').value,memo:document.getElementById('g-memo').value.trim(),createdAt:new Date().toISOString()});
+  save();renderGoals();updateCtx();toggleForm('goalForm');
+  document.getElementById('g-title').value='';document.getElementById('g-memo').value='';
+  toast('✅ 목표 추가됐어요!')
+}
+function renderGoals(){
+  const el=document.getElementById('goalItems');
+  if(!db.goals.length){el.innerHTML='<div class="empty-state">목표를 추가해보세요!</div>';return}
+  el.innerHTML=db.goals.map(g=>`
+    <div class="item">
+      <div class="item-body">
+        <div class="item-title">${g.title}</div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>${g.progress}% 완료</span>${g.deadline?`<span>${g.deadline}</span>`:''}</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${g.progress}%"></div></div>
+        </div>
+        ${g.memo?`<div class="item-sub">${g.memo}</div>`:''}
+      </div>
+      <button class="item-del" onclick="del('goals','${g.id}')">✕</button>
+    </div>`).join('')
+}
+
+// SUBJECT
+function addSubject(){
+  const name=document.getElementById('s-name').value.trim();
+  if(!name){toast('과목명을 입력해주세요!');return}
+  db.subjects.push({id:Date.now().toString(),name,level:document.getElementById('s-level').value,current:document.getElementById('s-current').value.trim(),goal:document.getElementById('s-goal').value.trim(),createdAt:new Date().toISOString()});
+  save();renderSubjects();updateCtx();toggleForm('subjectForm');
+  ['s-name','s-current','s-goal'].forEach(id=>document.getElementById(id).value='');
+  toast('✅ 과목 추가됐어요!')
+}
+function renderSubjects(){
+  const el=document.getElementById('subjectItems');
+  if(!db.subjects.length){el.innerHTML='<div class="empty-state">공부 중인 과목을 추가해보세요!</div>';return}
+  const levelColor={입문:'chip-green',기초:'chip-blue',중급:'chip-amber',고급:'chip-red'};
+  el.innerHTML=db.subjects.map(s=>`
+    <div class="item">
+      <div class="item-body">
+        <div class="item-title" style="display:flex;align-items:center;gap:8px">${s.name} <span class="badge-chip ${levelColor[s.level]||'chip-blue'}">${s.level}</span></div>
+        ${s.current?`<div class="item-sub">📍 현재: ${s.current}</div>`:''}
+        ${s.goal?`<div class="item-sub">🎯 목표: ${s.goal}</div>`:''}
+      </div>
+      <button class="item-del" onclick="del('subjects','${s.id}')">✕</button>
+    </div>`).join('')
+}
+
+// LOG
+function addLog(){
+  const subject=document.getElementById('l-subject').value.trim();
+  const content=document.getElementById('l-content').value.trim();
+  if(!subject){toast('과목을 입력해주세요!');return}
+  const date=document.getElementById('l-date').value||new Date().toISOString().slice(0,10);
+  db.logs.unshift({id:Date.now().toString(),date,hours:document.getElementById('l-hours').value,subject,content,createdAt:new Date().toISOString()});
+  if(db.logs.length>30) db.logs=db.logs.slice(0,30);
+  save();renderLogs();updateCtx();toggleForm('logForm');
+  ['l-subject','l-content','l-hours'].forEach(id=>document.getElementById(id).value='');
+  toast('✅ 학습 기록 저장됐어요!')
+}
+function renderLogs(){
+  const el=document.getElementById('logItems');
+  if(!db.logs.length){el.innerHTML='<div class="empty-state">학습 기록을 남겨보세요!</div>';return}
+  el.innerHTML=db.logs.slice(0,10).map(l=>`
+    <div class="item">
+      <div class="item-body">
+        <div class="item-title">${l.subject}${l.hours?` · ${l.hours}시간`:''}</div>
+        ${l.content?`<div class="item-sub">${l.content}</div>`:''}
+        <div class="item-meta">${l.date}</div>
+      </div>
+      <button class="item-del" onclick="del('logs','${l.id}')">✕</button>
+    </div>`).join('')
+}
+
+function del(key,id){db[key]=db[key].filter(x=>x.id!==id);save();if(key==='goals')renderGoals();else if(key==='subjects')renderSubjects();else renderLogs();updateCtx();toast('삭제됐어요.')}
+
+// CONTEXT
+function updateCtx(){
+  const pills=[];
+  if(db.goals.length) pills.push(`🎯 목표 ${db.goals.length}개`);
+  if(db.subjects.length) pills.push(`📖 과목 ${db.subjects.length}개`);
+  if(db.logs.length) pills.push(`📊 기록 ${db.logs.length}건`);
+  document.getElementById('ctxPills').innerHTML=pills.map(p=>`<span class="ctx-pill">${p}</span>`).join('')
+}
+
+function buildCtx(){
+  const parts=['[학습 데이터]'];
+  if(db.goals.length){parts.push('[학습 목표]');db.goals.forEach(g=>parts.push(`• ${g.title} (${g.progress}% 완료${g.deadline?', 기한:'+g.deadline:''}${g.memo?', '+g.memo:''}`))}
+  if(db.subjects.length){parts.push('[공부 중인 과목]');db.subjects.forEach(s=>parts.push(`• ${s.name}(${s.level})${s.current?' — 현재:'+s.current:''}${s.goal?' — 목표:'+s.goal:''}`))}
+  if(db.logs.length){parts.push('[최근 학습 기록]');db.logs.slice(0,7).forEach(l=>parts.push(`• ${l.date} ${l.subject}${l.hours?' '+l.hours+'h':''}${l.content?' — '+l.content:''}`))}
+  return parts.join('\n')
+}
+
+function buildSystem(){
+  const ctx=buildCtx();
+  const toneMap={formal:'격식체(존댓말)',casual:'반말',friendly:'친근하고 격려적인 말투'};
+  return `당신은 "${db.settings.name}"이라는 학습 코치 AI 직원입니다.
+경력: ${getYears(db.settings.hireDate)} | 말투: ${toneMap[db.settings.tone]||'친근하게'}로 대화, 사용자를 "사장님"이라 부름
+전문분야: 학습 계획, 동기부여, 개념 설명, 진도 관리, 시험 전략
+
+${ctx?`=== 사용자 학습 데이터 (필수 참고) ===\n${ctx}\n===\n위 데이터를 바탕으로 개인화된 코칭을 제공하세요.`:''}
+
+학습 질문에는 구체적이고 실행 가능한 조언을 주세요. 어려운 개념은 쉽게 설명하고, 격려와 동기부여도 잊지 마세요!`
+}
+
+// CHAT
+function renderMsgs(){
+  const el=document.getElementById('chatMsgs');
+  if(!db.history.length){
+    el.innerHTML=`<div class="msg ai"><div class="msg-bubble"><p>안녕하세요! 학습 코치 ${db.settings.name}입니다 📚</p><p>목표, 과목, 학습 기록을 왼쪽에 저장하면 그걸 참고해서 맞춤 코칭을 드릴게요!</p></div><div class="msg-time">지금</div></div>`
+  } else {
+    el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('')
+  }
+  el.scrollTop=el.scrollHeight
+}
+
+function ask(q){document.getElementById('chatInput').value=q;send()}
+
+async function send(){
+  if(isLoading) return;
+  if(!apiKey){openApiModal();toast('API 키를 먼저 설정해주세요!');return}
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();if(!text)return;
+  const t=now();
+  const esc=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  db.history.push({role:'user',content:`<p>${esc}</p>`,time:t});
+  input.value='';input.style.height='auto';
+  const el=document.getElementById('chatMsgs');
+  el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('');
+  const tyEl=document.createElement('div');tyEl.className='msg ai';
+  tyEl.innerHTML=`<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  el.appendChild(tyEl);el.scrollTop=el.scrollHeight;
+  isLoading=true;document.getElementById('sendBtn').disabled=true;
+  try{
+    const msgs=db.history.slice(-14).map(m=>({role:m.role,content:m.content.replace(/<[^>]+>/g,'')}));
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:buildSystem(),messages:msgs})});
+    const data=await res.json();tyEl.remove();
+    if(data.error)throw new Error(data.error.message);
+    const reply=fmtMd(data.content[0].text);
+    db.history.push({role:'assistant',content:reply,time:now()});save();
+    el.innerHTML=db.history.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}"><div class="msg-bubble">${m.content}</div><div class="msg-time">${m.time||''}</div></div>`).join('');
+    el.scrollTop=el.scrollHeight;
+  }catch(err){tyEl.remove();el.innerHTML+=`<div class="msg ai"><div class="msg-bubble" style="border-color:#fca5a5;color:#ef4444">❌ ${err.message}</div></div>`;el.scrollTop=el.scrollHeight}
+  finally{isLoading=false;document.getElementById('sendBtn').disabled=false}
+}
+
+function fmtMd(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/### (.+)/gm,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^\d+\. (.+)$/gm,'<li>$1</li>').replace(/^[-•] (.+)$/gm,'<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>').split('\n\n').map(p=>p.startsWith('<')?p:`<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}
+
+function openApiModal(){document.getElementById('apiInput').value=apiKey;document.getElementById('apiModal').classList.add('open')}
+function closeApiModal(){document.getElementById('apiModal').classList.remove('open')}
+function saveKey(){const k=document.getElementById('apiInput').value.trim();if(!k.startsWith('sk-ant-')){toast('❌ 올바른 API 키 형식이 아니에요');return}apiKey=k;localStorage.setItem('apiKey',k);document.getElementById('apiBtn').classList.add('active');document.getElementById('apiLabel').textContent='연결됨 ✓';closeApiModal();toast('✅ API 키 설정 완료!')}
+
+// INIT
+document.getElementById('yearsLabel').textContent=getYears(db.settings.hireDate);
+if(apiKey){document.getElementById('apiBtn').classList.add('active');document.getElementById('apiLabel').textContent='연결됨 ✓'}
+document.getElementById('l-date').value=new Date().toISOString().slice(0,10);
+renderGoals();renderSubjects();renderLogs();updateCtx();renderMsgs();
+</script>
+</body>
+</html>

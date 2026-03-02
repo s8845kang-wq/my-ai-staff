@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My AI Staff</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080b12; --s1:#10141c; --s2:#161b26; --s3:#1e2535;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#dde3ef; --muted:#4e5a70; --muted2:#7e8da8;
+  --mono:'IBM Plex Mono',monospace; --serif:'DM Serif Display',serif; --sans:'Noto Sans KR',sans-serif;
+  --r:20px; --r-sm:12px;
+  --study-c:#60a5fa; --schedule-c:#34d399; --legal-c:#f97316; --asset-c:#fbbf24;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+.topbar{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--serif);font-size:22px;display:flex;align-items:center;gap:10px}
+.logo-badge{background:linear-gradient(135deg,#1e3a8a,#312e81);border:1px solid rgba(99,102,241,.4);color:#a5b4fc;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:2px;padding:4px 10px;border-radius:99px}
+.key-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--s2);color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.key-btn:hover{border-color:rgba(255,255,255,.25);color:var(--text)}.key-btn.active{border-color:rgba(52,211,153,.4);color:var(--schedule-c)}
+.app{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+.section-head{margin-bottom:28px;animation:fadeUp .5s ease both}
+.section-title{font-family:var(--serif);font-size:30px}
+.section-sub{font-size:13px;color:var(--muted2);margin-top:6px;line-height:1.7}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.staff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media(max-width:640px){.staff-grid{grid-template-columns:1fr}}
+.id-card{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);background:var(--s1);transition:all .35s cubic-bezier(.16,1,.3,1);animation:cardIn .5s ease both}
+.id-card:nth-child(1){animation-delay:.05s}.id-card:nth-child(2){animation-delay:.12s}
+.id-card:nth-child(3){animation-delay:.19s}.id-card:nth-child(4){animation-delay:.26s}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.id-card:hover{transform:translateY(-6px) scale(1.015);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.card-stripe{height:5px}
+.study .card-stripe{background:linear-gradient(90deg,var(--study-c),#818cf8)}
+.schedule .card-stripe{background:linear-gradient(90deg,var(--schedule-c),#34d399)}
+.legal .card-stripe{background:linear-gradient(90deg,var(--legal-c),#fb923c)}
+.asset .card-stripe{background:linear-gradient(90deg,var(--asset-c),#fde68a)}
+.card-body{padding:22px}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.card-left{display:flex;align-items:center;gap:14px}
+.card-avatar{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;flex-shrink:0}
+.study .card-avatar{background:linear-gradient(135deg,#1e3a5f,#1e40af)}
+.schedule .card-avatar{background:linear-gradient(135deg,#064e3b,#065f46)}
+.legal .card-avatar{background:linear-gradient(135deg,#431407,#9a3412)}
+.asset .card-avatar{background:linear-gradient(135deg,#451a03,#92400e)}
+.status-dot{position:absolute;bottom:-2px;right:-2px;width:13px;height:13px;border-radius:50%;background:#22c55e;border:2px solid var(--s1);animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0)}}
+.card-name{font-size:17px;font-weight:700;margin-bottom:3px}
+.card-role{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.study .card-role{color:var(--study-c)}.schedule .card-role{color:var(--schedule-c)}
+.legal .card-role{color:var(--legal-c)}.asset .card-role{color:var(--asset-c)}
+.card-id{font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--s2);padding:4px 10px;border-radius:99px;border:1px solid var(--border)}
+.card-divider{height:1px;background:var(--border);margin:0 0 16px}
+.card-info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.info-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.info-value{font-size:13px;font-weight:600}
+.data-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;min-height:24px}
+.data-chip{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2)}
+.data-chip.filled{border-color:rgba(255,255,255,.15);color:var(--text);background:rgba(255,255,255,.08)}
+.card-btns{display:flex;gap:8px}
+.btn-enter{flex:1;padding:11px;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.study .btn-enter{background:var(--study-c);color:#0a0c10}
+.schedule .btn-enter{background:var(--schedule-c);color:#0a0c10}
+.legal .btn-enter{background:var(--legal-c);color:#0a0c10}
+.asset .btn-enter{background:var(--asset-c);color:#0a0c10}
+.btn-enter:hover{opacity:.85;transform:scale(1.02)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s;display:flex;align-items:center;justify-content:center}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);padding:32px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(0,0,0,.6);transform:scale(.95);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-title{font-family:var(--serif);font-size:22px;margin-bottom:8px}
+.modal-desc{font-size:13px;color:var(--muted2);line-height:1.7;margin-bottom:20px}
+.m-input{width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-size:14px;font-family:var(--mono);outline:none;margin-bottom:12px;transition:border-color .2s}
+.m-input:focus{border-color:rgba(96,165,250,.5)}
+.m-btns{display:flex;gap:8px}
+.m-ok{flex:1;padding:12px;background:var(--study-c);color:#0a0c10;font-weight:700;border:none;border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.m-ok:hover{opacity:.88}
+.m-cancel{padding:12px 18px;background:rgba(255,255,255,.06);color:var(--muted2);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:14px;font-family:inherit}
+.m-cancel:hover{background:rgba(255,255,255,.1)}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:11px 22px;border-radius:99px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.info-banner{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:28px;font-size:13px;color:var(--muted2);line-height:1.8;animation:fadeUp .5s ease .3s both}
+.info-banner strong{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">My AI Staff <span class="logo-badge">CORP.</span></div>
+  <button class="key-btn" id="keyBtn" onclick="openModal()">🔑 <span id="keyLabel">API 키 설정</span></button>
+</div>
+<div class="app">
+  <div class="section-head">
+    <div class="section-title">나의 AI 직원들</div>
+    <div class="section-sub">카드의 <strong>입장하기</strong>를 누르면 각 비서 전용 워크스페이스로 이동해요.<br>API 키는 한 번만 설정하면 4명 전원이 공유해요.</div>
+  </div>
+  <div class="info-banner" id="apiBanner">
+    💡 <strong>시작하기:</strong> 우측 상단 <strong>🔑 API 키 설정</strong>을 먼저 누르세요. 그 다음 직원 카드의 <strong>입장하기</strong>를 클릭하면 전용 워크스페이스로 이동합니다.
+  </div>
+  <div class="staff-grid" id="staffGrid"></div>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-title">🔑 Anthropic API 키</div>
+    <div class="modal-desc">
+      AI 직원들이 실제로 일하려면 Claude API 키가 필요해요.<br>
+      <a href="https://console.anthropic.com" target="_blank" style="color:#60a5fa">console.anthropic.com</a>에서 무료로 발급받으세요.<br>
+      <span style="font-size:11px;opacity:.7">키는 브라우저에만 저장되며 외부로 전송되지 않아요.</span>
+    </div>
+    <input class="m-input" id="modalInput" type="password" placeholder="sk-ant-...">
+    <div class="m-btns">
+      <button class="m-cancel" onclick="closeModal()">취소</button>
+      <button class="m-ok" onclick="saveKey()">저장하고 시작</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const STAFF=[
+  {id:'study',emoji:'📚',name:'김지성',role:'Study Coach',dept:'교육지원팀',colorClass:'study',hireDate:'2024-03-01',cardId:'EDU-001',page:'study-coach.html',dataKeys:[{label:'🎯 목표',storeKey:'study_v1',field:'goals'},{label:'📖 과목',storeKey:'study_v1',field:'subjects'},{label:'📊 기록',storeKey:'study_v1',field:'logs'}]},
+  {id:'schedule',emoji:'📅',name:'박정리',role:'Schedule Secretary',dept:'총무팀',colorClass:'schedule',hireDate:'2024-01-15',cardId:'ADM-002',page:'schedule-secretary.html',dataKeys:[{label:'📅 일정',storeKey:'schedule_v1',field:'events'},{label:'✅ 할일',storeKey:'schedule_v1',field:'todos'}]},
+  {id:'legal',emoji:'⚖️',name:'최법무',role:'Legal Advisor',dept:'법무팀',colorClass:'legal',hireDate:'2023-07-01',cardId:'LEG-003',page:'legal-advisor.html',dataKeys:[{label:'⚖️ 사안',storeKey:'legal_v1',field:'cases'},{label:'📄 계약',storeKey:'legal_v1',field:'contracts'},{label:'📝 메모',storeKey:'legal_v1',field:'memos'}]},
+  {id:'asset',emoji:'💰',name:'윤재무',role:'Asset Advisor',dept:'재무팀',colorClass:'asset',hireDate:'2023-11-01',cardId:'FIN-004',page:'asset-manager.html',dataKeys:[{label:'💰 자산',storeKey:'asset_v1',field:'assets'},{label:'💸 거래',storeKey:'asset_v1',field:'expenses'},{label:'🎯 목표',storeKey:'asset_v1',field:'goals'}]},
+];
+let apiKey=localStorage.getItem('apiKey')||'';
+function getYears(d){const m=Math.floor((new Date()-new Date(d))/(1000*60*60*24*30.5));return m<12?`${m}개월차`:`${Math.floor(m/12)}년 ${m%12}개월차`}
+function getCount(dk){const raw=localStorage.getItem(dk.storeKey);if(!raw)return 0;try{return(JSON.parse(raw)[dk.field]||[]).length}catch{return 0}}
+function renderGrid(){
+  document.getElementById('staffGrid').innerHTML=STAFF.map(s=>{
+    const chips=s.dataKeys.map(dk=>{const c=getCount(dk);return`<span class="data-chip ${c>0?'filled':''}">${dk.label} ${c}</span>`}).join('');
+    return`<div class="id-card ${s.colorClass}">
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="card-avatar">${s.emoji}<div class="status-dot"></div></div>
+            <div><div class="card-name">${s.name}</div><div class="card-role">${s.role}</div></div>
+          </div>
+          <div class="card-id"># ${s.cardId}</div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-info">
+          <div><div class="info-label">소속</div><div class="info-value">${s.dept}</div></div>
+          <div><div class="info-label">경력</div><div class="info-value">${getYears(s.hireDate)}</div></div>
+          <div><div class="info-label">입사일</div><div class="info-value" style="font-size:12px">${s.hireDate}</div></div>
+          <div><div class="info-label">상태</div><div class="info-value" style="color:#22c55e;font-size:12px">● 근무중</div></div>
+        </div>
+        <div class="data-row">${chips}</div>
+        <div class="card-btns">
+          <a class="btn-enter" href="${s.page}">💼 입장하기</a>
+        </div>
+      </div>
+    </div>`}).join('');
+}
+function openModal(){document.getElementById('modalInput').value=apiKey;document.getElementById('modalOverlay').classList.add('open')}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open')}
+function saveKey(){
+  const k=document.getElementById('modalInput').value.trim();
+  if(!k.startsWith('sk-ant-')){showToast('❌ 올바른 API 키 형식이 아니에요 (sk-ant-로 시작)');return}
+  apiKey=k;localStorage.setItem('apiKey',k);
+  document.getElementById('keyBtn').classList.add('active');
+  document.getElementById('keyLabel').textContent='API 연결됨 ✓';
+  document.getElementById('apiBanner').style.display='none';
+  closeModal();showToast('✅ API 키 설정 완료! 직원들이 일할 준비가 됐어요 🎉');
+  renderGrid();
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+if(apiKey){document.getElementById('keyBtn').classList.add('active');document.getElementById('keyLabel').textContent='API 연결됨 ✓';document.getElementById('apiBanner').style.display='none'}
+renderGrid();
+window.addEventListener('focus',renderGrid);
+</script>
+</body>
+</html>
